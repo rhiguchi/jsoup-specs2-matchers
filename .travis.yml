@@ -5,13 +5,18 @@ scala:
 
 script: sbt ++$TRAVIS_SCALA_VERSION -Dfile.encoding=UTF8 test package
 
+env: SCALA_BIN=${TRAVIS_SCALA_VERSION:0:4} JAR_FILE_BASE=target/scala-$SCALA_BIN
+
+before_deploy:
+- DEPLOY_JAR=$JAR_FILE_BASE/jsoup-specs2-matchers_$SCALA_BIN.jar
+- cp $JAR_FILE_BASE/jsoup-specs2-matchers_$SCALA_BIN-*.jar $DEPLOY_JAR
+
 deploy:
   provider: releases
   api_key:
     secure: k8X5liXP8KPvUDMv1s0Er15tkk5Ru0PJgKQIVd1+mICHvW5cKHhytW/I7KImiPso2YZVEQzvYUHO8Hmbc44JgA+l8FTQ+7MguwGeOTMv9QwLzQ8hUSRlq1f1Pyx5GZMj3AO9cJv5xeSXTx1mM2I9lMLt7mdTTvyn8O9huTf1VqA=
   file:
-  - target/scala-2.10/jsoup-specs2-matchers_2.10-0.1.jar
-  - target/scala-2.11/jsoup-specs2-matchers_2.11-0.1.jar
+  - $DEPLOY_JAR
   skip_cleanup: true
   on:
     repo: rhiguchi/jsoup-specs2-matchers
