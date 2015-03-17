@@ -5,9 +5,9 @@ scala:
 
 script: sbt ++$TRAVIS_SCALA_VERSION -Dfile.encoding=UTF8 test package
 
-env: SCALA_BIN=${TRAVIS_SCALA_VERSION:0:4} JAR_FILE_BASE=target/scala-$SCALA_BIN
-
 before_deploy:
+- SCALA_BIN=${TRAVIS_SCALA_VERSION:0:4}
+- JAR_FILE_BASE=target/scala-$SCALA_BIN
 - DEPLOY_JAR=$JAR_FILE_BASE/jsoup-specs2-matchers_$SCALA_BIN.jar
 - cp $JAR_FILE_BASE/jsoup-specs2-matchers_$SCALA_BIN-*.jar $DEPLOY_JAR
 
