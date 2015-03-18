@@ -24,9 +24,9 @@ trait ElementMatchers {
    * @param query 選択クエリ
    * @param count 要素数
    */
-  def haveElements(selector: String, count: Int) = haveSize[Elements](count) ^^ { element: Element =>
-    element.select(selector) aka
-      "elements selected by query '%s' in '%s'".format(selector, element)
+  def haveElements(query: String, count: Int) = haveSize[Elements](count) ^^ { element: Element =>
+    element.select(query) aka
+      "elements selected by query '%s' in '%s'".format(query, element)
   }
 
   /**
