@@ -6,8 +6,8 @@ import org.jsoup.Jsoup
 class JsoupMatchersSpec extends Specification {
   /** 検証につかう HTML */
   val testHtml = """
-      <div id="element-1" class="elemnet"></div>
-      <div id="element-2" class="elemnet"></div>
+      <div id="element-1" class="elemnet">text</div>
+      <div id="element-2" class="elemnet">文字列</div>
       <div id="element-3" class="elemnet"></div>
       <form>
         <input id="input-1" type="text" name="test-text" value="text-value">
@@ -59,6 +59,46 @@ class JsoupMatchersSpec extends Specification {
 
         haveElements("div", 0).test(testDocument) must beFalse
       }
+    }
+
+    "#haveText(expected)" should {
+      import JsoupMatchers.haveText
+
+      "文字列と一致するときは検証が成功する" in {
+        haveText("text").test(testDocument select "#element-1" get 0) must beTrue
+        haveText("文字列").test(testDocument select "#element-2" get 0) must beTrue
+        haveText("").test(testDocument select "#element-3" get 0) must beTrue
+      }
+
+      "文字列と一致しないときは検証が成功しない" in {
+        haveText("").test(testDocument select "#element-1" get 0) must beFalse
+        haveText("文字列 x").test(testDocument select "#element-2" get 0) must beFalse
+      }
+    }
+
+    "#haveElementWithText(query, expected)" should {
+      import JsoupMatchers.haveElementWithText
+
+      "文字列と一致するときは検証が成功する" in {
+        haveElementWithText("#element-1", "text").test(testDocument) must beTrue
+        haveElementWithText("#element-2", "文字列").test(testDocument) must beTrue
+        haveElementWithText("#textarea-element", "text content").test(testDocument) must beTrue
+      }
+
+      "文字列が一致しないときは検証が失敗する" in {
+        haveElementWithText("#element-1", "").test(testDocument) must beTrue
+        haveElementWithText("#element-2", "xxx").test(testDocument) must beTrue
+      }
+
+      "クエリで複数の要素が 1 つ以外選択されるときは検証が失敗する" in {
+        haveElementWithText("#element-4", "text").test(testDocument) must beFalse
+        haveElementWithText("#element-2, #element-3", "文字列").test(testDocument) must beFalse
+      }
+
+      // "文字列と一致しないときは検証が成功しない" in {
+      //   haveText("").test(testDocument select "#element-1" get 0) must beFalse
+      //   haveText("文字列 x").test(testDocument select "#element-2" get 0) must beFalse
+      // }
     }
 
     "#haveVal(value)" should {

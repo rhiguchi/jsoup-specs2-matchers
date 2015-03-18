@@ -30,6 +30,25 @@ trait ElementMatchers {
   }
 
   /**
+   * 要素内にテキストが含まれているかを検証します
+   * @param expected 文字列
+   */
+  def haveText(expected: String) = be_===(expected) ^^ { element: Element =>
+    element.text aka "text in '%s'".format(element)
+  }
+
+  /**
+   * 選択される要素が 1 つあり、それが指定した文字列をもっているかを検証します
+   * @param query 選択クエリ
+   * @param expected 文字列
+   */
+  def haveElementWithText(query: String, expectedText: String) = {
+    haveElements(query, 1) and haveText(expectedText) ^^ { element: Element =>
+      element select query get 0
+    }
+  }
+
+  /**
    * `val()` で取得できる値が一致するかを検証します
    * @param value 検証する値
    */
