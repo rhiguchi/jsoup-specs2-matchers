@@ -6,9 +6,9 @@ import org.jsoup.Jsoup
 class JsoupMatchersSpec extends Specification {
   /** 検証につかう HTML */
   val testHtml = """
-      <div id="element-1" class="elemnet">text</div>
-      <div id="element-2" class="elemnet">文字列</div>
-      <div id="element-3" class="elemnet"></div>
+      <div id="element-1" class="element">text</div>
+      <div id="element-2" class="element">文字列</div>
+      <div id="element-3" class="element"></div>
       <form>
         <input id="input-1" type="text" name="test-text" value="text-value">
         <input id="input-2" type="radio" name="test-radio" value="radio">
@@ -34,7 +34,7 @@ class JsoupMatchersSpec extends Specification {
 
       "クエリで選択できるときは検証を成功させる" in {
         haveElements("#element-1").test(testDocument) must beTrue
-        haveElements("div.elemnet").test(testDocument) must beTrue
+        haveElements("div.element").test(testDocument) must beTrue
       }
 
       "クエリで選択できないときは検証は成功しない" in {
@@ -48,7 +48,7 @@ class JsoupMatchersSpec extends Specification {
 
       "クエリで選択できる要素が数も一致するときに検証を成功させる" in {
         haveElements("#element-1", 1).test(testDocument) must beTrue
-        haveElements("div.elemnet", 3).test(testDocument) must beTrue
+        haveElements("div.element", 3).test(testDocument) must beTrue
         haveElements("#element-x", 0).test(testDocument) must beTrue
       }
 
@@ -94,11 +94,6 @@ class JsoupMatchersSpec extends Specification {
         haveElementWithText("#element-4", "text").test(testDocument) must beFalse
         haveElementWithText("#element-2, #element-3", "文字列").test(testDocument) must beFalse
       }
-
-      // "文字列と一致しないときは検証が成功しない" in {
-      //   haveText("").test(testDocument select "#element-1" get 0) must beFalse
-      //   haveText("文字列 x").test(testDocument select "#element-2" get 0) must beFalse
-      // }
     }
 
     "#haveVal(value)" should {
