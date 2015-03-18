@@ -86,8 +86,8 @@ class JsoupMatchersSpec extends Specification {
       }
 
       "文字列が一致しないときは検証が失敗する" in {
-        haveElementWithText("#element-1", "").test(testDocument) must beTrue
-        haveElementWithText("#element-2", "xxx").test(testDocument) must beTrue
+        haveElementWithText("#element-1", "").test(testDocument) must beFalse
+        haveElementWithText("#element-2", "xxx").test(testDocument) must beFalse
       }
 
       "クエリで複数の要素が 1 つ以外選択されるときは検証が失敗する" in {
