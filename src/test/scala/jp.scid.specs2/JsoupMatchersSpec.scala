@@ -5,6 +5,7 @@ import org.specs2.matcher.Matcher
 import org.specs2.specification.Fragment
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
 
 class JsoupMatchersSpec extends Specification {
   /** 検証につかう HTML */
@@ -46,22 +47,40 @@ class JsoupMatchersSpec extends Specification {
       }
     }
 
-    // haveClass の検証
-    def haveClassExpectation(matcherGen: String => Matcher[Element]): Fragment = {
+    "#haveDomClass(expected)" should {
+      import JsoupMatchers.haveDomClass
+
       "指定した class を含んでいるときは検証が成功する" in {
-        matcherGen("element").test(testDocument select "#element-1" get 0) must beTrue
-        matcherGen("element").test(testDocument select "#element-2" get 0) must beTrue
-        matcherGen("other-class").test(testDocument select "#element-2" get 0) must beTrue
+        haveDomClass[Element]("element").test(testDocument select "#element-1" get 0) must beTrue
+        haveDomClass[Element]("element").test(testDocument select "#element-2" get 0) must beTrue
+        haveDomClass[Element]("other-class").test(testDocument select "#element-2" get 0) must beTrue
       }
 
       "指定した class が含まれていないときは検証は成功しない" in {
-        matcherGen("other-class").test(testDocument select "#element-1" get 0) must beFalse
-        matcherGen("element").test(testDocument select "#input-1" get 0) must beFalse
+        haveDomClass[Element]("other-class").test(testDocument select "#element-1" get 0) must beFalse
+        haveDomClass[Element]("element").test(testDocument select "#input-1" get 0) must beFalse
       }
     }
 
-    "#haveClass(expected)" should haveClassExpectation(JsoupMatchers.haveClass)
-    "#domClass(expected)" should haveClassExpectation(JsoupMatchers.domClass)
+    "#domClass(expected)" should {
+      import JsoupMatchers.domClass
+
+      "指定した class を含んでいるときは検証が成功する" in {
+        domClass[Element]("element").test(testDocument select "#element-1" get 0) must beTrue
+        domClass[Element]("element").test(testDocument select "#element-2" get 0) must beTrue
+        domClass[Element]("other-class").test(testDocument select "#element-2" get 0) must beTrue
+
+        domClass[Elements]("element").test(testDocument select "#element-1") must beTrue
+        domClass[Elements]("other-class").test(testDocument select "div.element") must beTrue
+      }
+
+      "指定した class が含まれていないときは検証は成功しない" in {
+        domClass[Element]("other-class").test(testDocument select "#element-1" get 0) must beFalse
+        domClass[Element]("element").test(testDocument select "#input-1" get 0) must beFalse
+
+        domClass[Elements]("unknown-class").test(testDocument select "div") must beFalse
+      }
+    }
 
     "#haveAttr(attrName)" should {
       import JsoupMatchers.haveAttr

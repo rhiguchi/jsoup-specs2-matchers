@@ -3,6 +3,7 @@ package jp.scid.specs2.jsoup
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
+import org.specs2.matcher.Matcher
 
 /**
  * Jsoup の Element オブジェクトの検証メソッドのミックスイン
@@ -22,8 +23,8 @@ trait ElementMatchers {
    * 要素が指定したクラスを持っているかを検証します
    * @param expected クラス名
    */
-  def haveClass(expected: String) = beTrue ^^  { element: Element =>
-    element.hasClass(expected) aka
+  def haveDomClass[E](expected: String)(implicit domClassified: DomClassified[E]) = beTrue ^^ { element: E =>
+    domClassified.haveClass(element, expected) aka
       "having class '%s' in '%s'".format(expected, element)
   }
 
@@ -32,7 +33,8 @@ trait ElementMatchers {
    * `not have domClass(expected)` と記述するのに利用できます
    * @param expected クラス名
    */
-  def domClass(expected: String) = haveClass(expected)
+  def domClass[E](expected: String)(implicit domClassified: DomClassified[E]) =
+    haveDomClass(expected)(domClassified)
 
   /**
    * 指定する属性を要素が持っているかを検証します
@@ -111,4 +113,3 @@ trait ElementMatchers {
    */
   def haveInputSubmitElement(name: String) = haveElements(s"input[type=submit][name=$name]", 1)
 }
-
