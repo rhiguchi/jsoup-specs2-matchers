@@ -28,6 +28,13 @@ trait ElementMatchers {
   }
 
   /**
+   * 要素が指定したクラスを持っているかを検証します
+   * `not have domClass(expected)` と記述するのに利用できます
+   * @param expected クラス名
+   */
+  def domClass(expected: String) = haveClass(expected)
+
+  /**
    * 指定する属性を要素が持っているかを検証します
    * @param attrName 属性名
    * @param value 属性値
