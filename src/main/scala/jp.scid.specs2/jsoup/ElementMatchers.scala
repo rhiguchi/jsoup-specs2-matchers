@@ -19,6 +19,9 @@ trait ElementMatchers {
     element.id aka "id of element '%s'".format(element)
   }
 
+  @deprecated("use haveDomClass", "2015-03-19")
+  def haveClass(expected: String) = haveDomClass[Element](expected)
+
   /**
    * 要素が指定したクラスを持っているかを検証します
    * @param expected クラス名
