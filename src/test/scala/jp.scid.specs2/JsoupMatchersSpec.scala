@@ -135,6 +135,22 @@ class JsoupMatchersSpec extends Specification {
       }
     }
 
+    "#attr(attrName, expected)" should {
+      import JsoupMatchers.attr
+
+      "指定した属性値が一致するときは検証が成功する" in {
+        attr("title", "title-1").test(testDocument select "#element-1" get 0) must beTrue
+        attr("alt", "alt-1").test(testDocument select "#element-2" get 0) must beTrue
+        attr("data-empty", "").test(testDocument select "#element-3" get 0) must beTrue
+      }
+
+      "属性値が異なるときは検証は成功しない" in {
+        attr("title", "").test(testDocument select "#element-1" get 0) must beFalse
+        attr("xxxx", "title-1").test(testDocument select "#element-1" get 0) must beFalse
+        attr("alt", "").test(testDocument select "#element-2" get 0) must beFalse
+      }
+    }
+
     "#haveElements(query)" should {
       import JsoupMatchers.haveElements
 
