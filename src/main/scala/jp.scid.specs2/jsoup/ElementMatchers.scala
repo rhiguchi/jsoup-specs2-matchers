@@ -47,6 +47,14 @@ trait ElementMatchers {
 
   /**
    * 指定する属性と値を要素が持っているかを検証します
+   * `not have attr(attrName)` と記述するのに利用できます
+   * @param attrName 属性名
+   * @param expected 属性値
+   */
+  def attr(attrName: String) = haveAttr(attrName)
+
+  /**
+   * 指定する属性と値を要素が持っているかを検証します
    * @param attrName 属性名
    * @param expected 属性値
    */

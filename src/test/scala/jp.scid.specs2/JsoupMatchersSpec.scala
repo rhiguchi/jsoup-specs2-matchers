@@ -98,6 +98,22 @@ class JsoupMatchersSpec extends Specification {
       }
     }
 
+    "#attr(attrName)" should {
+      import JsoupMatchers.attr
+
+      "指定した属性値を持っているときは検証が成功する" in {
+        attr("title").test(testDocument select "#element-1" get 0) must beTrue
+        attr("id").test(testDocument select "#element-1" get 0) must beTrue
+        attr("alt").test(testDocument select "#element-2" get 0) must beTrue
+        attr("data-empty").test(testDocument select "#element-3" get 0) must beTrue
+      }
+
+      "指定した属性値を持っていないときは検証は成功しない" in {
+        attr("title-x").test(testDocument select "#element-1" get 0) must beFalse
+        attr("title").test(testDocument select "#element-2" get 0) must beFalse
+      }
+    }
+
     "#haveAttr(attrName, expected)" should {
       import JsoupMatchers.haveAttr
 
