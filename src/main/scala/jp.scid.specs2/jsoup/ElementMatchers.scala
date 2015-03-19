@@ -58,8 +58,8 @@ trait ElementMatchers {
    * @param attrName 属性名
    * @param expected 属性値
    */
-  def haveAttr(attrName: String, expected: String) = be_===(expected) ^^ { element: Element =>
-    element attr attrName aka "the value of attribute '%s' on element '%s'".format(attrName, element)
+  def haveAttr[E](attrName: String, expected: String)(implicit attr: DomAttributed[E]) = be_===(expected) ^^ { element: E =>
+    attr.attr(element, attrName) aka "the value of attribute '%s' on element '%s'".format(attrName, element)
   }
 
   /**
@@ -68,9 +68,7 @@ trait ElementMatchers {
    * @param attrName 属性名
    * @param expected 属性値
    */
-  def attr(attrName: String, expected: String) = be_===(expected) ^^ { element: Element =>
-    element attr attrName aka "the value of attribute '%s' on element '%s'".format(attrName, element)
-  }
+  def attr[E](attrName: String, expected: String)(implicit attr: DomAttributed[E]) = haveAttr(attrName, expected)(attr)
 
   /**
    * セレクタで参照できる DOM 要素を 1 つ以上含んでいるかを検証します

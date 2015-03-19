@@ -123,15 +123,22 @@ class JsoupMatchersSpec extends Specification {
       import JsoupMatchers.haveAttr
 
       "指定した属性値が一致するときは検証が成功する" in {
-        haveAttr("title", "title-1").test(testDocument select "#element-1" get 0) must beTrue
-        haveAttr("alt", "alt-1").test(testDocument select "#element-2" get 0) must beTrue
-        haveAttr("data-empty", "").test(testDocument select "#element-3" get 0) must beTrue
+        haveAttr[Element]("title", "title-1").test(testDocument select "#element-1" get 0) must beTrue
+        haveAttr[Element]("alt", "alt-1").test(testDocument select "#element-2" get 0) must beTrue
+        haveAttr[Element]("data-empty", "").test(testDocument select "#element-3" get 0) must beTrue
+
+        haveAttr[Elements]("title", "title-1").test(testDocument select "#element-1") must beTrue
+        haveAttr[Elements]("title", "title-1").test(testDocument select "div.element") must beTrue
+        haveAttr[Elements]("alt", "alt-1").test(testDocument select "div.element") must beTrue
       }
 
       "属性値が異なるときは検証は成功しない" in {
-        haveAttr("title", "").test(testDocument select "#element-1" get 0) must beFalse
-        haveAttr("xxxx", "title-1").test(testDocument select "#element-1" get 0) must beFalse
-        haveAttr("alt", "").test(testDocument select "#element-2" get 0) must beFalse
+        haveAttr[Element]("title", "").test(testDocument select "#element-1" get 0) must beFalse
+        haveAttr[Element]("xxxx", "title-1").test(testDocument select "#element-1" get 0) must beFalse
+        haveAttr[Element]("alt", "").test(testDocument select "#element-2" get 0) must beFalse
+
+        haveAttr[Elements]("title", "").test(testDocument select "#element-1") must beFalse
+        haveAttr[Elements]("alt", "title-1").test(testDocument select "div.element") must beFalse
       }
     }
 
@@ -139,15 +146,22 @@ class JsoupMatchersSpec extends Specification {
       import JsoupMatchers.attr
 
       "指定した属性値が一致するときは検証が成功する" in {
-        attr("title", "title-1").test(testDocument select "#element-1" get 0) must beTrue
-        attr("alt", "alt-1").test(testDocument select "#element-2" get 0) must beTrue
-        attr("data-empty", "").test(testDocument select "#element-3" get 0) must beTrue
+        attr[Element]("title", "title-1").test(testDocument select "#element-1" get 0) must beTrue
+        attr[Element]("alt", "alt-1").test(testDocument select "#element-2" get 0) must beTrue
+        attr[Element]("data-empty", "").test(testDocument select "#element-3" get 0) must beTrue
+
+        attr[Elements]("title", "title-1").test(testDocument select "#element-1") must beTrue
+        attr[Elements]("title", "title-1").test(testDocument select "div.element") must beTrue
+        attr[Elements]("alt", "alt-1").test(testDocument select "div.element") must beTrue
       }
 
       "属性値が異なるときは検証は成功しない" in {
-        attr("title", "").test(testDocument select "#element-1" get 0) must beFalse
-        attr("xxxx", "title-1").test(testDocument select "#element-1" get 0) must beFalse
-        attr("alt", "").test(testDocument select "#element-2" get 0) must beFalse
+        attr[Element]("title", "").test(testDocument select "#element-1" get 0) must beFalse
+        attr[Element]("xxxx", "title-1").test(testDocument select "#element-1" get 0) must beFalse
+        attr[Element]("alt", "").test(testDocument select "#element-2" get 0) must beFalse
+
+        attr[Elements]("title", "").test(testDocument select "#element-1") must beFalse
+        attr[Elements]("alt", "title-1").test(testDocument select "div.element") must beFalse
       }
     }
 
