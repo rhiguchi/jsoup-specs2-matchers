@@ -7,7 +7,7 @@ class JsoupMatchersSpec extends Specification {
   /** 検証につかう HTML */
   val testHtml = """
       <div id="element-1" class="element" title="title-1">text</div>
-      <div id="element-2" class="element" alt="alt-1">文字列</div>
+      <div id="element-2" class="element other-class" alt="alt-1">文字列</div>
       <div id="element-3" class="element" data-empty></div>
       <form>
         <input id="input-1" type="text" name="test-text" value="text-value">
@@ -40,6 +40,21 @@ class JsoupMatchersSpec extends Specification {
       "id 属性値が一致しないときは検証は成功しない" in {
         haveId("element-2").test(testDocument select "div" get 0) must beFalse
         haveId("element-1").test(testDocument select "div" get 1) must beFalse
+      }
+    }
+
+    "#haveClass(expected)" should {
+      import JsoupMatchers.{ haveClass => haveDomClass}
+
+      "指定した class を含んでいるときは検証が成功する" in {
+        haveDomClass("element").test(testDocument select "#element-1" get 0) must beTrue
+        haveDomClass("element").test(testDocument select "#element-2" get 0) must beTrue
+        haveDomClass("other-class").test(testDocument select "#element-2" get 0) must beTrue
+      }
+
+      "指定した class が含まれていないときは検証は成功しない" in {
+        haveDomClass("other-class").test(testDocument select "#element-1" get 0) must beFalse
+        haveDomClass("element").test(testDocument select "#input-1" get 0) must beFalse
       }
     }
 
