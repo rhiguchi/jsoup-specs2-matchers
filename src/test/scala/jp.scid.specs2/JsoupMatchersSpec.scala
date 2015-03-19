@@ -86,15 +86,15 @@ class JsoupMatchersSpec extends Specification {
       import JsoupMatchers.haveAttr
 
       "指定した属性値を持っているときは検証が成功する" in {
-        haveAttr("title").test(testDocument select "#element-1" get 0) must beTrue
-        haveAttr("id").test(testDocument select "#element-1" get 0) must beTrue
-        haveAttr("alt").test(testDocument select "#element-2" get 0) must beTrue
-        haveAttr("data-empty").test(testDocument select "#element-3" get 0) must beTrue
+        haveAttr[Element]("title").test(testDocument select "#element-1" get 0) must beTrue
+        haveAttr[Element]("id").test(testDocument select "#element-1" get 0) must beTrue
+        haveAttr[Element]("alt").test(testDocument select "#element-2" get 0) must beTrue
+        haveAttr[Element]("data-empty").test(testDocument select "#element-3" get 0) must beTrue
       }
 
       "指定した属性値を持っていないときは検証は成功しない" in {
-        haveAttr("title-x").test(testDocument select "#element-1" get 0) must beFalse
-        haveAttr("title").test(testDocument select "#element-2" get 0) must beFalse
+        haveAttr[Element]("title-x").test(testDocument select "#element-1" get 0) must beFalse
+        haveAttr[Element]("title").test(testDocument select "#element-2" get 0) must beFalse
       }
     }
 
@@ -102,15 +102,20 @@ class JsoupMatchersSpec extends Specification {
       import JsoupMatchers.attr
 
       "指定した属性値を持っているときは検証が成功する" in {
-        attr("title").test(testDocument select "#element-1" get 0) must beTrue
-        attr("id").test(testDocument select "#element-1" get 0) must beTrue
-        attr("alt").test(testDocument select "#element-2" get 0) must beTrue
-        attr("data-empty").test(testDocument select "#element-3" get 0) must beTrue
+        attr[Element]("title").test(testDocument select "#element-1" get 0) must beTrue
+        attr[Element]("id").test(testDocument select "#element-1" get 0) must beTrue
+        attr[Element]("alt").test(testDocument select "#element-2" get 0) must beTrue
+        attr[Element]("data-empty").test(testDocument select "#element-3" get 0) must beTrue
+
+        attr[Elements]("title").test(testDocument select "div.element") must beTrue
+        attr[Elements]("alt").test(testDocument select "div.element") must beTrue
       }
 
       "指定した属性値を持っていないときは検証は成功しない" in {
-        attr("title-x").test(testDocument select "#element-1" get 0) must beFalse
-        attr("title").test(testDocument select "#element-2" get 0) must beFalse
+        attr[Element]("title-x").test(testDocument select "#element-1" get 0) must beFalse
+        attr[Element]("title").test(testDocument select "#element-2" get 0) must beFalse
+
+        attr[Elements]("name").test(testDocument select "div.element") must beFalse
       }
     }
 

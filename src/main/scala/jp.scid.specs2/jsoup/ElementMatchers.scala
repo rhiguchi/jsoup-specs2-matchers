@@ -41,8 +41,8 @@ trait ElementMatchers {
    * @param attrName 属性名
    * @param value 属性値
    */
-  def haveAttr(attrName: String) = beTrue ^^ { element: Element =>
-    element hasAttr attrName aka "attribute '%s' on element '%s'".format(attrName, element)
+  def haveAttr[E](attrName: String)(implicit attr: DomAttributed[E]) = beTrue ^^ { element: E =>
+    attr.haveAttr(element, attrName) aka "'%s' attribute in element '%s'".format(attrName, element)
   }
 
   /**
@@ -51,7 +51,7 @@ trait ElementMatchers {
    * @param attrName 属性名
    * @param expected 属性値
    */
-  def attr(attrName: String) = haveAttr(attrName)
+  def attr[E](attrName: String)(implicit attr: DomAttributed[E]) = haveAttr(attrName)(attr)
 
   /**
    * 指定する属性と値を要素が持っているかを検証します
