@@ -6,9 +6,9 @@ import org.jsoup.Jsoup
 class JsoupMatchersSpec extends Specification {
   /** 検証につかう HTML */
   val testHtml = """
-      <div id="element-1" class="element">text</div>
-      <div id="element-2" class="element">文字列</div>
-      <div id="element-3" class="element"></div>
+      <div id="element-1" class="element" title="title-1">text</div>
+      <div id="element-2" class="element" alt="alt-1">文字列</div>
+      <div id="element-3" class="element" data-empty></div>
       <form>
         <input id="input-1" type="text" name="test-text" value="text-value">
         <input id="input-2" type="radio" name="test-radio" value="radio">
@@ -29,6 +29,52 @@ class JsoupMatchersSpec extends Specification {
   lazy val testDocument = Jsoup.parse(testHtml)
 
   "JsoupMatchers メソッド" >> {
+    "#haveId(expected)" should {
+      import JsoupMatchers.haveId
+
+      "id 属性値が一致するときは検証が成功する" in {
+        haveId("element-1").test(testDocument select "div" get 0) must beTrue
+        haveId("element-2").test(testDocument select "div" get 1) must beTrue
+      }
+
+      "id 属性値が一致しないときは検証は成功しない" in {
+        haveId("element-2").test(testDocument select "div" get 0) must beFalse
+        haveId("element-1").test(testDocument select "div" get 1) must beFalse
+      }
+    }
+
+    "#haveAttr(attrName)" should {
+      import JsoupMatchers.haveAttr
+
+      "指定した属性値を持っているときは検証が成功する" in {
+        haveAttr("title").test(testDocument select "#element-1" get 0) must beTrue
+        haveAttr("id").test(testDocument select "#element-1" get 0) must beTrue
+        haveAttr("alt").test(testDocument select "#element-2" get 0) must beTrue
+        haveAttr("data-empty").test(testDocument select "#element-3" get 0) must beTrue
+      }
+
+      "指定した属性値を持っていないときは検証は成功しない" in {
+        haveAttr("title-x").test(testDocument select "#element-1" get 0) must beFalse
+        haveAttr("title").test(testDocument select "#element-2" get 0) must beFalse
+      }
+    }
+
+    "#haveAttr(attrName, expected)" should {
+      import JsoupMatchers.haveAttr
+
+      "指定した属性値が一致するときは検証が成功する" in {
+        haveAttr("title", "title-1").test(testDocument select "#element-1" get 0) must beTrue
+        haveAttr("alt", "alt-1").test(testDocument select "#element-2" get 0) must beTrue
+        haveAttr("data-empty", "").test(testDocument select "#element-3" get 0) must beTrue
+      }
+
+      "属性値が異なるときは検証は成功しない" in {
+        haveAttr("title", "").test(testDocument select "#element-1" get 0) must beFalse
+        haveAttr("xxxx", "title-1").test(testDocument select "#element-1" get 0) must beFalse
+        haveAttr("alt", "").test(testDocument select "#element-2" get 0) must beFalse
+      }
+    }
+
     "#haveElements(query)" should {
       import JsoupMatchers.haveElements
 

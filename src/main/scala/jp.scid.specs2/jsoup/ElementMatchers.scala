@@ -11,6 +11,32 @@ trait ElementMatchers {
   import Specs2Matchers._
 
   /**
+   * 要素の ID が一致するかを検証します
+   * @param query 選択クエリ
+   */
+  def haveId(expected: String) = be_===(expected) ^^ { element: Element =>
+    element.id aka "id of element '%s'".format(element)
+  }
+
+  /**
+   * 指定する属性を要素が持っているかを検証します
+   * @param attrName 属性名
+   * @param value 属性値
+   */
+  def haveAttr(attrName: String) = beTrue ^^ { element: Element =>
+    element hasAttr attrName aka "attribute '%s' on element '%s'".format(attrName, element)
+  }
+
+  /**
+   * 指定する属性と値を要素が持っているかを検証します
+   * @param attrName 属性名
+   * @param expected 属性値
+   */
+  def haveAttr(attrName: String, expected: String) = be_===(expected) ^^ { element: Element =>
+    element attr attrName aka "the value of attribute '%s' on element '%s'".format(attrName, element)
+  }
+
+  /**
    * セレクタで参照できる DOM 要素を 1 つ以上含んでいるかを検証します
    * @param query 選択クエリ
    */
