@@ -14,6 +14,10 @@ class JsoupMatchersSpec extends Specification {
       <form>
         <input id="input-1" type="text" name="test-text" value="text-value">
         <input id="input-2" type="radio" name="test-radio" value="radio">
+        <input id="input-3" type="radio" name="test-radio-2" value="val1">
+        <input id="input-4" type="radio" name="test-radio-2" value="val2" checked>
+        <input id="input-5" type="checkbox" name="test-checkbox" checked>
+
         <textarea id="textarea-element" name="test-textarea">
           text content
         </textarea>
@@ -199,6 +203,40 @@ class JsoupMatchersSpec extends Specification {
       "名前があっていても値が一致しないときは検証は成功しない" in {
         haveInputElementWithValue("test-text", "") test testDocument must beFalse
         haveInputElementWithValue("test-radio", "text-value") test testDocument must beFalse
+      }
+    }
+
+    "#haveInputElementWithCheck(name, isChecked)" should {
+      import JsoupMatchers.haveInputElementWithCheck
+
+      "指定した名前の input 要素のうち一つでもチェック属性あると検証が成功する" in {
+        haveInputElementWithCheck("test-radio", false) test testDocument must beTrue
+        haveInputElementWithCheck("test-radio-2", true) test testDocument must beTrue
+        haveInputElementWithCheck("test-checkbox", true) test testDocument must beTrue
+      }
+
+      "チェック属性が一致しないときは検証は成功しない" in {
+        haveInputElementWithCheck("test-radio", true) test testDocument must beFalse
+        haveInputElementWithCheck("test-radio-2", false) test testDocument must beFalse
+        haveInputElementWithCheck("test-text", true) test testDocument must beFalse
+      }
+    }
+
+    "#haveInputElementWithCheck(name, value, isChecked)" should {
+      import JsoupMatchers.haveInputElementWithCheck
+
+      "指定した名前と値である input 要素のチェック属性が一致すると検証が成功する" in {
+        testDocument must haveInputElementWithCheck("test-radio", "radio", false)
+        haveInputElementWithCheck("test-radio", "radio", false) test testDocument must beTrue
+        haveInputElementWithCheck("test-radio-2", "val1", false) test testDocument must beTrue
+        haveInputElementWithCheck("test-radio-2", "val2", true) test testDocument must beTrue
+      }
+
+      "指定した名前と値である input 要素がないかチェック属性が一致しないときは検証は成功しない" in {
+        haveInputElementWithCheck("test-radio-2", "radio", true) test testDocument must beFalse
+        haveInputElementWithCheck("test-radio-2", "valx", false) test testDocument must beFalse
+        haveInputElementWithCheck("test-radio-2", "val2", false) test testDocument must beFalse
+        haveInputElementWithCheck("test-checkbox", "", false) test testDocument must beFalse
       }
     }
 

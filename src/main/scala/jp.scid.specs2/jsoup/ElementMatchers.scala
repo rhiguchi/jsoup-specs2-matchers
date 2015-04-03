@@ -105,6 +105,30 @@ trait ElementMatchers {
   }
 
   /**
+   * 名前の指定された input 要素がチェック属性をもっているかを検証します
+   * @param name name 属性値
+   * @param isChecked check 属性の有無
+   */
+  def haveInputElementWithCheck(name: String, isChecked: Boolean) = {
+    val query = "input[checked]" + attrSelector("name", name)
+    val count = if (isChecked) 1 else 0
+    haveElements(query, count)
+  }
+
+  /**
+   * 名前の指定された input 要素のうち指定した値の要素がチェック属性をもっているかを検証します
+   * @param name name 属性値
+   * @param value 値
+   * @param isChecked check 属性の有無
+   */
+  def haveInputElementWithCheck(name: String, value: String, isChecked: Boolean) = {
+    val query = "input" + attrSelector("name", name) + attrSelector("value", value)
+    val haveChecked = haveAttr("checked") ^^ { (_: Element).select(query).first }
+    val checkMatcher = if (isChecked) haveChecked else not(haveChecked)
+    haveElements(query, 1) and checkMatcher
+  }
+
+  /**
    * 指定された名前の textarea 要素にテキストがせっていされているかを検証します
    * @param name name 属性値
    * @param text テキスト値
@@ -115,5 +139,8 @@ trait ElementMatchers {
       element.select(query).first
     }
   }
+
+  /** 属性値のセレクタを返します */
+  private def attrSelector(attr: String, value: String): String = """[%s="%s"]""".format(attr, value)
 }
 
