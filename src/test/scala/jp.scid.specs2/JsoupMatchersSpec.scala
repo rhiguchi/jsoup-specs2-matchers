@@ -106,5 +106,19 @@ class JsoupMatchersSpec extends Specification {
         haveInputSubmitElement("submit-dummy") test testDocument must beFalse
       }
     }
+
+    "#haveInputElementWithValue(name, value)" should {
+      import JsoupMatchers.haveInputElementWithValue
+
+      "指定した名前と値である要素が存在するときに検証が成功する" in {
+        haveInputElementWithValue("test-text", "text-value") test testDocument must beTrue
+        haveInputElementWithValue("test-radio", "radio") test testDocument must beTrue
+      }
+
+      "名前があっていても値が一致しないときは検証は成功しない" in {
+        haveInputElementWithValue("test-text", "") test testDocument must beFalse
+        haveInputElementWithValue("test-radio", "text-value") test testDocument must beFalse
+      }
+    }
   }
 }

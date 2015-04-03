@@ -49,5 +49,17 @@ trait ElementMatchers {
    * @param name name 属性値
    */
   def haveInputSubmitElement(name: String) = haveElements(s"input[type=submit][name=$name]", 1)
+
+  /**
+   * 指定された名前である input 要素に値が指定されているかを検証します
+   * @param name name 属性値
+   * @param value 値
+   */
+  def haveInputElementWithValue(name: String, value: String) = {
+    val query = s"input[name=$name]"
+    haveInputElement(name) and haveVal(value) ^^ { element: Element =>
+      element.select(query).first
+    }
+  }
 }
 
