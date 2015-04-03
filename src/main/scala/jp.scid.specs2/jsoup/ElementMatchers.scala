@@ -55,6 +55,15 @@ trait ElementMatchers {
   }
 
   /**
+   * 要素がクラスを持っているかを検証します
+   * @param expected 検証する class 名
+   */
+  def haveClass(expected: String) = beTrue ^^ { element: Element =>
+    element.hasClass(expected) aka
+      "having class '%s' in '%s'".format(expected, element)
+  }
+
+  /**
    * 要素指定したテキストをもっているかを検証します
    * @param expected 検証する文字列
    */

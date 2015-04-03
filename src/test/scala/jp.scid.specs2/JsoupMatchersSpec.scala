@@ -7,7 +7,7 @@ class JsoupMatchersSpec extends Specification {
   /** 検証につかう HTML */
   val testHtml = """
       <div id="element-1" class="elemnet" title="test">text-1</div>
-      <div id="element-2" class="elemnet" alt="alt-value">text-2</div>
+      <div id="element-2" class="elemnet other-class" alt="alt-value">text-2</div>
       <div id="element-3" class="elemnet" data-value>
       </div>
 
@@ -109,6 +109,21 @@ class JsoupMatchersSpec extends Specification {
         haveId("") test testDocument.select("#element-2").first must beFalse
         // id 属性がない
         haveId("") test testDocument.select("form").first must beFalse
+      }
+    }
+
+    "#haveClass(query)" should {
+      import JsoupMatchers.{ haveClass => Matcher }
+
+      "クラスを持っていると検証が成功する" in {
+        Matcher("elemnet") test testDocument.select("#element-1").first must beTrue
+        Matcher("elemnet") test testDocument.select("#element-2").first must beTrue
+        Matcher("other-class") test testDocument.select("#element-2").first must beTrue
+      }
+
+      "クラスをもっていないければ検証は失敗する" in {
+        Matcher("other-class") test testDocument.select("#element-1").first must beFalse
+        Matcher("elemnet") test testDocument.select("form").first must beFalse
       }
     }
 
