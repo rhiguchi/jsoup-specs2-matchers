@@ -6,9 +6,11 @@ import org.jsoup.Jsoup
 class JsoupMatchersSpec extends Specification {
   /** 検証につかう HTML */
   val testHtml = """
-      <div id="element-1" class="elemnet"></div>
-      <div id="element-2" class="elemnet"></div>
-      <div id="element-3" class="elemnet"></div>
+      <div id="element-1" class="elemnet">text-1</div>
+      <div id="element-2" class="elemnet">text-2</div>
+      <div id="element-3" class="elemnet">
+      </div>
+
       <form>
         <input id="input-1" type="text" name="test-text" value="text-value">
         <input id="input-2" type="radio" name="test-radio" value="radio">
@@ -58,6 +60,21 @@ class JsoupMatchersSpec extends Specification {
         haveElements("#element-x", 1).test(testDocument) must beFalse
 
         haveElements("div", 0).test(testDocument) must beFalse
+      }
+    }
+
+    "#haveText(query)" should {
+      import JsoupMatchers.haveText
+
+      "文字列が一致すると検証が成功する" in {
+        haveText("text-1") test testDocument.select("#element-1").first must beTrue
+        haveText("text-2") test testDocument.select("#element-2").first must beTrue
+        haveText("") test testDocument.select("#element-3").first must beTrue
+      }
+
+      "文字列が一致しないければ検証は失敗する" in {
+        haveText("") test testDocument.select("#element-1").first must beFalse
+        haveText("text-1") test testDocument.select("#element-2").first must beFalse
       }
     }
 

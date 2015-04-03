@@ -30,6 +30,14 @@ trait ElementMatchers {
   }
 
   /**
+   * 要素指定したテキストをもっているかを検証します
+   * @param expected 検証する文字列
+   */
+  def haveText(expected: String) = be_===(expected) ^^ { element: Element =>
+    element.text aka "text in '%s'".format(element)
+  }
+
+  /**
    * `val()` で取得できる値が一致するかを検証します
    * @param value 検証する値
    */
