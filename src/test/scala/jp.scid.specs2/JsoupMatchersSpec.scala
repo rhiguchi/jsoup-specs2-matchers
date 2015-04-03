@@ -79,7 +79,7 @@ class JsoupMatchersSpec extends Specification {
       }
     }
 
-    "#haveInputElement(name, element)" should {
+    "#haveInputElement(name)" should {
       import JsoupMatchers.haveInputElement
 
       "指定した名前の要素が存在するときに検証が成功する" in {
@@ -93,7 +93,7 @@ class JsoupMatchersSpec extends Specification {
       }
     }
 
-    "#haveInputSubmitElement(name, element)" should {
+    "#haveInputSubmitElement(name)" should {
       import JsoupMatchers.haveInputSubmitElement
 
       "指定した名前の要素が存在するときに検証が成功する" in {
