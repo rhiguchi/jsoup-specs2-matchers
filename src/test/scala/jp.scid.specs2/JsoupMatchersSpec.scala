@@ -17,6 +17,8 @@ class JsoupMatchersSpec extends Specification {
         <textarea id="textarea-element" name="test-textarea">
           text content
         </textarea>
+        <textarea id="textarea-element-2" name="test-textarea-2">
+        </textarea>
 
         <select id="select-element" name="test-select">
           <option value="selected option value" selected>
@@ -135,6 +137,21 @@ class JsoupMatchersSpec extends Specification {
       "名前があっていても値が一致しないときは検証は成功しない" in {
         haveInputElementWithValue("test-text", "") test testDocument must beFalse
         haveInputElementWithValue("test-radio", "text-value") test testDocument must beFalse
+      }
+    }
+
+    "#haveTextareaElementWithText(name, value)" should {
+      import JsoupMatchers.haveTextareaElementWithText
+
+      "指定した名前と値である要素が存在するときに検証が成功する" in {
+        haveTextareaElementWithText("test-textarea", "text content") test testDocument must beTrue
+        haveTextareaElementWithText("test-textarea-2", "") test testDocument must beTrue
+      }
+
+      "名前があっていても値が一致しないときは検証は成功しない" in {
+        haveTextareaElementWithText("test-textarea", "") test testDocument must beFalse
+        haveTextareaElementWithText("test-textarea-2", "content") test testDocument must beFalse
+        haveTextareaElementWithText("test-text", "text-value") test testDocument must beFalse
       }
     }
   }

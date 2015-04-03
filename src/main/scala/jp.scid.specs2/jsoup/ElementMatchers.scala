@@ -69,5 +69,17 @@ trait ElementMatchers {
       element.select(query).first
     }
   }
+
+  /**
+   * 指定された名前の textarea 要素にテキストがせっていされているかを検証します
+   * @param name name 属性値
+   * @param text テキスト値
+   */
+  def haveTextareaElementWithText(name: String, text: String) = {
+    val query = s"textarea[name=$name]"
+    haveElements(query, 1) and haveText(text) ^^ { element: Element =>
+      element.select(query).first
+    }
+  }
 }
 
