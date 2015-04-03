@@ -6,14 +6,22 @@ import org.jsoup.Jsoup
 class JsoupMatchersSpec extends Specification {
   /** 検証につかう HTML */
   val testHtml = """
-      <div id="element-1" class="elemnet"></div>
-      <div id="element-2" class="elemnet"></div>
-      <div id="element-3" class="elemnet"></div>
+      <div id="element-1" class="elemnet" title="test">text-1</div>
+      <div id="element-2" class="elemnet other-class" alt="alt-value">text-2</div>
+      <div id="element-3" class="elemnet" data-value>
+      </div>
+
       <form>
         <input id="input-1" type="text" name="test-text" value="text-value">
         <input id="input-2" type="radio" name="test-radio" value="radio">
+        <input id="input-3" type="radio" name="test-radio-2" value="val1">
+        <input id="input-4" type="radio" name="test-radio-2" value="val2" checked>
+        <input id="input-5" type="checkbox" name="test-checkbox" checked>
+
         <textarea id="textarea-element" name="test-textarea">
           text content
+        </textarea>
+        <textarea id="textarea-element-2" name="test-textarea-2">
         </textarea>
 
         <select id="select-element" name="test-select">
@@ -61,6 +69,83 @@ class JsoupMatchersSpec extends Specification {
       }
     }
 
+    "#haveAttr(attrName)" should {
+      import JsoupMatchers.haveAttr
+
+      "属性をもっていると検証が成功する" in {
+        haveAttr("title") test testDocument.select("#element-1").first must beTrue
+        haveAttr("id") test testDocument.select("#element-2").first must beTrue
+        haveAttr("data-value") test testDocument.select("#element-3").first must beTrue
+      }
+
+      "属性をもっていないと検証は失敗する" in {
+        haveAttr("alt") test testDocument.select("#element-1").first must beFalse
+        haveAttr("title") test testDocument.select("#element-2").first must beFalse
+      }
+    }
+
+    "#haveAttr(attrName, value)" should {
+      import JsoupMatchers.haveAttr
+
+      "属性の値が一致すると検証が成功する" in {
+        haveAttr("title", "test") test testDocument.select("#element-1").first must beTrue
+        haveAttr("alt", "alt-value") test testDocument.select("#element-2").first must beTrue
+        haveAttr("data-value", "") test testDocument.select("#element-3").first must beTrue
+      }
+
+      "属性の値が一致しないければ検証は失敗する" in {
+        haveAttr("title", "") test testDocument.select("#element-1").first must beFalse
+        haveAttr("alt", "test") test testDocument.select("#element-1").first must beFalse
+        haveAttr("alt", "test") test testDocument.select("#element-2").first must beFalse
+      }
+    }
+
+    "#haveId(query)" should {
+      import JsoupMatchers.haveId
+
+      "ID が一致すると検証が成功する" in {
+        haveId("element-1") test testDocument.select("#element-1").first must beTrue
+        haveId("element-2") test testDocument.select("#element-2").first must beTrue
+      }
+
+      "ID が一致しないければ検証は失敗する" in {
+        haveId("element-2") test testDocument.select("#element-1").first must beFalse
+        haveId("") test testDocument.select("#element-2").first must beFalse
+        // id 属性がない
+        haveId("") test testDocument.select("form").first must beFalse
+      }
+    }
+
+    "#haveClass(query)" should {
+      import JsoupMatchers.{ haveClass => Matcher }
+
+      "クラスを持っていると検証が成功する" in {
+        Matcher("elemnet") test testDocument.select("#element-1").first must beTrue
+        Matcher("elemnet") test testDocument.select("#element-2").first must beTrue
+        Matcher("other-class") test testDocument.select("#element-2").first must beTrue
+      }
+
+      "クラスをもっていないければ検証は失敗する" in {
+        Matcher("other-class") test testDocument.select("#element-1").first must beFalse
+        Matcher("elemnet") test testDocument.select("form").first must beFalse
+      }
+    }
+
+    "#haveText(query)" should {
+      import JsoupMatchers.haveText
+
+      "文字列が一致すると検証が成功する" in {
+        haveText("text-1") test testDocument.select("#element-1").first must beTrue
+        haveText("text-2") test testDocument.select("#element-2").first must beTrue
+        haveText("") test testDocument.select("#element-3").first must beTrue
+      }
+
+      "文字列が一致しないければ検証は失敗する" in {
+        haveText("") test testDocument.select("#element-1").first must beFalse
+        haveText("text-1") test testDocument.select("#element-2").first must beFalse
+      }
+    }
+
     "#haveVal(value)" should {
       import JsoupMatchers.haveVal
 
@@ -79,7 +164,7 @@ class JsoupMatchersSpec extends Specification {
       }
     }
 
-    "#haveInputElement(name, element)" should {
+    "#haveInputElement(name)" should {
       import JsoupMatchers.haveInputElement
 
       "指定した名前の要素が存在するときに検証が成功する" in {
@@ -93,7 +178,7 @@ class JsoupMatchersSpec extends Specification {
       }
     }
 
-    "#haveInputSubmitElement(name, element)" should {
+    "#haveInputSubmitElement(name)" should {
       import JsoupMatchers.haveInputSubmitElement
 
       "指定した名前の要素が存在するときに検証が成功する" in {
@@ -104,6 +189,69 @@ class JsoupMatchersSpec extends Specification {
       "名前があっていても type が submit の input 要素ではないときは検証は成功しない" in {
         haveInputSubmitElement("test-text") test testDocument must beFalse
         haveInputSubmitElement("submit-dummy") test testDocument must beFalse
+      }
+    }
+
+    "#haveInputElementWithValue(name, value)" should {
+      import JsoupMatchers.haveInputElementWithValue
+
+      "指定した名前と値である要素が存在するときに検証が成功する" in {
+        haveInputElementWithValue("test-text", "text-value") test testDocument must beTrue
+        haveInputElementWithValue("test-radio", "radio") test testDocument must beTrue
+      }
+
+      "名前があっていても値が一致しないときは検証は成功しない" in {
+        haveInputElementWithValue("test-text", "") test testDocument must beFalse
+        haveInputElementWithValue("test-radio", "text-value") test testDocument must beFalse
+      }
+    }
+
+    "#haveInputElementWithCheck(name, isChecked)" should {
+      import JsoupMatchers.haveInputElementWithCheck
+
+      "指定した名前の input 要素のうち一つでもチェック属性あると検証が成功する" in {
+        haveInputElementWithCheck("test-radio", false) test testDocument must beTrue
+        haveInputElementWithCheck("test-radio-2", true) test testDocument must beTrue
+        haveInputElementWithCheck("test-checkbox", true) test testDocument must beTrue
+      }
+
+      "チェック属性が一致しないときは検証は成功しない" in {
+        haveInputElementWithCheck("test-radio", true) test testDocument must beFalse
+        haveInputElementWithCheck("test-radio-2", false) test testDocument must beFalse
+        haveInputElementWithCheck("test-text", true) test testDocument must beFalse
+      }
+    }
+
+    "#haveInputElementWithCheck(name, value, isChecked)" should {
+      import JsoupMatchers.haveInputElementWithCheck
+
+      "指定した名前と値である input 要素のチェック属性が一致すると検証が成功する" in {
+        testDocument must haveInputElementWithCheck("test-radio", "radio", false)
+        haveInputElementWithCheck("test-radio", "radio", false) test testDocument must beTrue
+        haveInputElementWithCheck("test-radio-2", "val1", false) test testDocument must beTrue
+        haveInputElementWithCheck("test-radio-2", "val2", true) test testDocument must beTrue
+      }
+
+      "指定した名前と値である input 要素がないかチェック属性が一致しないときは検証は成功しない" in {
+        haveInputElementWithCheck("test-radio-2", "radio", true) test testDocument must beFalse
+        haveInputElementWithCheck("test-radio-2", "valx", false) test testDocument must beFalse
+        haveInputElementWithCheck("test-radio-2", "val2", false) test testDocument must beFalse
+        haveInputElementWithCheck("test-checkbox", "", false) test testDocument must beFalse
+      }
+    }
+
+    "#haveTextareaElementWithText(name, value)" should {
+      import JsoupMatchers.haveTextareaElementWithText
+
+      "指定した名前と値である要素が存在するときに検証が成功する" in {
+        haveTextareaElementWithText("test-textarea", "text content") test testDocument must beTrue
+        haveTextareaElementWithText("test-textarea-2", "") test testDocument must beTrue
+      }
+
+      "名前があっていても値が一致しないときは検証は成功しない" in {
+        haveTextareaElementWithText("test-textarea", "") test testDocument must beFalse
+        haveTextareaElementWithText("test-textarea-2", "content") test testDocument must beFalse
+        haveTextareaElementWithText("test-text", "text-value") test testDocument must beFalse
       }
     }
   }
