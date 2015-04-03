@@ -96,6 +96,22 @@ class JsoupMatchersSpec extends Specification {
       }
     }
 
+    "#haveId(query)" should {
+      import JsoupMatchers.haveId
+
+      "ID が一致すると検証が成功する" in {
+        haveId("element-1") test testDocument.select("#element-1").first must beTrue
+        haveId("element-2") test testDocument.select("#element-2").first must beTrue
+      }
+
+      "ID が一致しないければ検証は失敗する" in {
+        haveId("element-2") test testDocument.select("#element-1").first must beFalse
+        haveId("") test testDocument.select("#element-2").first must beFalse
+        // id 属性がない
+        haveId("") test testDocument.select("form").first must beFalse
+      }
+    }
+
     "#haveText(query)" should {
       import JsoupMatchers.haveText
 

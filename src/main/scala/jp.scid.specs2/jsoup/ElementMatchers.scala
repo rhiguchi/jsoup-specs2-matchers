@@ -47,6 +47,14 @@ trait ElementMatchers {
   }
 
   /**
+   * 要素に id 属性がありその ID が一致するかを検証します
+   * @param expected id の値
+   */
+  def haveId(expected: String) = haveAttr("id") and be_===(expected) ^^ { element: Element =>
+    element.id aka "id of element '%s'".format(element)
+  }
+
+  /**
    * 要素指定したテキストをもっているかを検証します
    * @param expected 検証する文字列
    */
