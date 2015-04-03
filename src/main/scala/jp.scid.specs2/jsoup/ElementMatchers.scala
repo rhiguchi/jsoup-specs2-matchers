@@ -30,6 +30,23 @@ trait ElementMatchers {
   }
 
   /**
+   * 要素が指定する属性を持つかを検証します
+   * @param attrName 属性名
+   */
+  def haveAttr(attrName: String) = beTrue ^^ { element: Element =>
+    element hasAttr attrName aka "attribute '%s' of element '%s'".format(attrName, element)
+  }
+
+  /**
+   * 要素が指定する属性に値を持つかを検証します
+   * @param attrName 属性名
+   * @param value 属性値
+   */
+  def haveAttr(attrName: String, value: String) = be_===(value) ^^ { element: Element =>
+    element attr attrName aka "attribute '%s' of element '%s'".format(attrName, element)
+  }
+
+  /**
    * 要素指定したテキストをもっているかを検証します
    * @param expected 検証する文字列
    */

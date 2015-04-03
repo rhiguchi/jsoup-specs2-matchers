@@ -6,9 +6,9 @@ import org.jsoup.Jsoup
 class JsoupMatchersSpec extends Specification {
   /** 検証につかう HTML */
   val testHtml = """
-      <div id="element-1" class="elemnet">text-1</div>
-      <div id="element-2" class="elemnet">text-2</div>
-      <div id="element-3" class="elemnet">
+      <div id="element-1" class="elemnet" title="test">text-1</div>
+      <div id="element-2" class="elemnet" alt="alt-value">text-2</div>
+      <div id="element-3" class="elemnet" data-value>
       </div>
 
       <form>
@@ -62,6 +62,37 @@ class JsoupMatchersSpec extends Specification {
         haveElements("#element-x", 1).test(testDocument) must beFalse
 
         haveElements("div", 0).test(testDocument) must beFalse
+      }
+    }
+
+    "#haveAttr(attrName)" should {
+      import JsoupMatchers.haveAttr
+
+      "属性をもっていると検証が成功する" in {
+        haveAttr("title") test testDocument.select("#element-1").first must beTrue
+        haveAttr("id") test testDocument.select("#element-2").first must beTrue
+        haveAttr("data-value") test testDocument.select("#element-3").first must beTrue
+      }
+
+      "属性をもっていないと検証は失敗する" in {
+        haveAttr("alt") test testDocument.select("#element-1").first must beFalse
+        haveAttr("title") test testDocument.select("#element-2").first must beFalse
+      }
+    }
+
+    "#haveAttr(attrName, value)" should {
+      import JsoupMatchers.haveAttr
+
+      "属性の値が一致すると検証が成功する" in {
+        haveAttr("title", "test") test testDocument.select("#element-1").first must beTrue
+        haveAttr("alt", "alt-value") test testDocument.select("#element-2").first must beTrue
+        haveAttr("data-value", "") test testDocument.select("#element-3").first must beTrue
+      }
+
+      "属性の値が一致しないければ検証は失敗する" in {
+        haveAttr("title", "") test testDocument.select("#element-1").first must beFalse
+        haveAttr("alt", "test") test testDocument.select("#element-1").first must beFalse
+        haveAttr("alt", "test") test testDocument.select("#element-2").first must beFalse
       }
     }
 
