@@ -1,16 +1,17 @@
 package jp.scid.specs2
 
 import org.specs2.mutable._
+import org.specs2.matcher.Matcher
+import org.specs2.specification.Fragment
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
 
 class JsoupMatchersSpec extends Specification {
   /** 検証につかう HTML */
   val testHtml = """
-      <div id="element-1" class="elemnet" title="test">text-1</div>
-      <div id="element-2" class="elemnet other-class" alt="alt-value">text-2</div>
-      <div id="element-3" class="elemnet" data-value>
-      </div>
-
+      <div id="element-1" class="element" title="test">text</div>
+      <div id="element-2" class="element other-class" alt="alt-value">文字列</div>
+      <div id="element-3" class="element" data-value></div>
       <form>
         <input id="input-1" type="text" name="test-text" value="text-value">
         <input id="input-2" type="radio" name="test-radio" value="radio">
@@ -37,12 +38,43 @@ class JsoupMatchersSpec extends Specification {
   lazy val testDocument = Jsoup.parse(testHtml)
 
   "JsoupMatchers メソッド" >> {
+    "#haveId(expected)" should {
+      import JsoupMatchers.haveId
+
+      "id 属性値が一致するときは検証が成功する" in {
+        haveId("element-1").test(testDocument select "div" get 0) must beTrue
+        haveId("element-2").test(testDocument select "div" get 1) must beTrue
+      }
+
+      "id 属性値が一致しないときは検証は成功しない" in {
+        haveId("element-2").test(testDocument select "div" get 0) must beFalse
+        haveId("element-1").test(testDocument select "div" get 1) must beFalse
+      }
+    }
+
+    // haveClass の検証
+    def haveClassExpectation(matcherGen: String => Matcher[Element]): Fragment = {
+      "指定した class を含んでいるときは検証が成功する" in {
+        matcherGen("element").test(testDocument select "#element-1" get 0) must beTrue
+        matcherGen("element").test(testDocument select "#element-2" get 0) must beTrue
+        matcherGen("other-class").test(testDocument select "#element-2" get 0) must beTrue
+      }
+
+      "指定した class が含まれていないときは検証は成功しない" in {
+        matcherGen("other-class").test(testDocument select "#element-1" get 0) must beFalse
+        matcherGen("element").test(testDocument select "#input-1" get 0) must beFalse
+      }
+    }
+
+    "#haveClass(expected)" should haveClassExpectation(JsoupMatchers.haveClass)
+    "#domClass(expected)" should haveClassExpectation(JsoupMatchers.domClass)
+
     "#haveElements(query)" should {
       import JsoupMatchers.haveElements
 
       "クエリで選択できるときは検証を成功させる" in {
         haveElements("#element-1").test(testDocument) must beTrue
-        haveElements("div.elemnet").test(testDocument) must beTrue
+        haveElements("div.element").test(testDocument) must beTrue
       }
 
       "クエリで選択できないときは検証は成功しない" in {
@@ -56,7 +88,7 @@ class JsoupMatchersSpec extends Specification {
 
       "クエリで選択できる要素が数も一致するときに検証を成功させる" in {
         haveElements("#element-1", 1).test(testDocument) must beTrue
-        haveElements("div.elemnet", 3).test(testDocument) must beTrue
+        haveElements("div.element", 3).test(testDocument) must beTrue
         haveElements("#element-x", 0).test(testDocument) must beTrue
       }
 
@@ -100,49 +132,38 @@ class JsoupMatchersSpec extends Specification {
       }
     }
 
-    "#haveId(query)" should {
-      import JsoupMatchers.haveId
-
-      "ID が一致すると検証が成功する" in {
-        haveId("element-1") test testDocument.select("#element-1").first must beTrue
-        haveId("element-2") test testDocument.select("#element-2").first must beTrue
-      }
-
-      "ID が一致しないければ検証は失敗する" in {
-        haveId("element-2") test testDocument.select("#element-1").first must beFalse
-        haveId("") test testDocument.select("#element-2").first must beFalse
-        // id 属性がない
-        haveId("") test testDocument.select("form").first must beFalse
-      }
-    }
-
-    "#haveClass(query)" should {
-      import JsoupMatchers.{ haveClass => Matcher }
-
-      "クラスを持っていると検証が成功する" in {
-        Matcher("elemnet") test testDocument.select("#element-1").first must beTrue
-        Matcher("elemnet") test testDocument.select("#element-2").first must beTrue
-        Matcher("other-class") test testDocument.select("#element-2").first must beTrue
-      }
-
-      "クラスをもっていないければ検証は失敗する" in {
-        Matcher("other-class") test testDocument.select("#element-1").first must beFalse
-        Matcher("elemnet") test testDocument.select("form").first must beFalse
-      }
-    }
-
-    "#haveText(query)" should {
+    "#haveText(expected)" should {
       import JsoupMatchers.haveText
 
-      "文字列が一致すると検証が成功する" in {
-        haveText("text-1") test testDocument.select("#element-1").first must beTrue
-        haveText("text-2") test testDocument.select("#element-2").first must beTrue
-        haveText("") test testDocument.select("#element-3").first must beTrue
+      "文字列と一致するときは検証が成功する" in {
+        haveText("text").test(testDocument select "#element-1" get 0) must beTrue
+        haveText("文字列").test(testDocument select "#element-2" get 0) must beTrue
+        haveText("").test(testDocument select "#element-3" get 0) must beTrue
       }
 
-      "文字列が一致しないければ検証は失敗する" in {
-        haveText("") test testDocument.select("#element-1").first must beFalse
-        haveText("text-1") test testDocument.select("#element-2").first must beFalse
+      "文字列と一致しないときは検証が成功しない" in {
+        haveText("").test(testDocument select "#element-1" get 0) must beFalse
+        haveText("文字列 x").test(testDocument select "#element-2" get 0) must beFalse
+      }
+    }
+
+    "#haveElementWithText(query, expected)" should {
+      import JsoupMatchers.haveElementWithText
+
+      "文字列と一致するときは検証が成功する" in {
+        haveElementWithText("#element-1", "text").test(testDocument) must beTrue
+        haveElementWithText("#element-2", "文字列").test(testDocument) must beTrue
+        haveElementWithText("#textarea-element", "text content").test(testDocument) must beTrue
+      }
+
+      "文字列が一致しないときは検証が失敗する" in {
+        haveElementWithText("#element-1", "").test(testDocument) must beFalse
+        haveElementWithText("#element-2", "xxx").test(testDocument) must beFalse
+      }
+
+      "クエリで複数の要素が 1 つ以外選択されるときは検証が失敗する" in {
+        haveElementWithText("#element-4", "text").test(testDocument) must beFalse
+        haveElementWithText("#element-2, #element-3", "文字列").test(testDocument) must beFalse
       }
     }
 

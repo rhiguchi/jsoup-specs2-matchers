@@ -11,6 +11,48 @@ trait ElementMatchers {
   import Specs2Matchers._
 
   /**
+   * 要素の ID が一致するかを検証します
+   * @param query 選択クエリ
+   */
+  def haveId(expected: String) = be_===(expected) ^^ { element: Element =>
+    element.id aka "id of element '%s'".format(element)
+  }
+
+  /**
+   * 要素が指定したクラスを持っているかを検証します
+   * @param expected クラス名
+   */
+  def haveClass(expected: String) = beTrue ^^  { element: Element =>
+    element.hasClass(expected) aka
+      "having class '%s' in '%s'".format(expected, element)
+  }
+
+  /**
+   * 要素が指定したクラスを持っているかを検証します
+   * `not have domClass(expected)` と記述するのに利用できます
+   * @param expected クラス名
+   */
+  def domClass(expected: String) = haveClass(expected)
+
+  /**
+   * 指定する属性を要素が持っているかを検証します
+   * @param attrName 属性名
+   * @param value 属性値
+   */
+  def haveAttr(attrName: String) = beTrue ^^ { element: Element =>
+    element hasAttr attrName aka "attribute '%s' on element '%s'".format(attrName, element)
+  }
+
+  /**
+   * 指定する属性と値を要素が持っているかを検証します
+   * @param attrName 属性名
+   * @param expected 属性値
+   */
+  def haveAttr(attrName: String, expected: String) = be_===(expected) ^^ { element: Element =>
+    element attr attrName aka "the value of attribute '%s' on element '%s'".format(attrName, element)
+  }
+
+  /**
    * セレクタで参照できる DOM 要素を 1 つ以上含んでいるかを検証します
    * @param query 選択クエリ
    */
@@ -24,51 +66,28 @@ trait ElementMatchers {
    * @param query 選択クエリ
    * @param count 要素数
    */
-  def haveElements(selector: String, count: Int) = haveSize[Elements](count) ^^ { element: Element =>
-    element.select(selector) aka
-      "elements selected by query '%s' in '%s'".format(selector, element)
+  def haveElements(query: String, count: Int) = haveSize[Elements](count) ^^ { element: Element =>
+    element.select(query) aka
+      "elements selected by query '%s' in '%s'".format(query, element)
   }
 
   /**
-   * 要素が指定する属性を持つかを検証します
-   * @param attrName 属性名
-   */
-  def haveAttr(attrName: String) = beTrue ^^ { element: Element =>
-    element hasAttr attrName aka "attribute '%s' of element '%s'".format(attrName, element)
-  }
-
-  /**
-   * 要素が指定する属性に値を持つかを検証します
-   * @param attrName 属性名
-   * @param value 属性値
-   */
-  def haveAttr(attrName: String, value: String) = be_===(value) ^^ { element: Element =>
-    element attr attrName aka "attribute '%s' of element '%s'".format(attrName, element)
-  }
-
-  /**
-   * 要素に id 属性がありその ID が一致するかを検証します
-   * @param expected id の値
-   */
-  def haveId(expected: String) = haveAttr("id") and be_===(expected) ^^ { element: Element =>
-    element.id aka "id of element '%s'".format(element)
-  }
-
-  /**
-   * 要素がクラスを持っているかを検証します
-   * @param expected 検証する class 名
-   */
-  def haveClass(expected: String) = beTrue ^^ { element: Element =>
-    element.hasClass(expected) aka
-      "having class '%s' in '%s'".format(expected, element)
-  }
-
-  /**
-   * 要素指定したテキストをもっているかを検証します
-   * @param expected 検証する文字列
+   * 要素内にテキストが含まれているかを検証します
+   * @param expected 文字列
    */
   def haveText(expected: String) = be_===(expected) ^^ { element: Element =>
     element.text aka "text in '%s'".format(element)
+  }
+
+  /**
+   * 選択される要素が 1 つあり、それが指定した文字列をもっているかを検証します
+   * @param query 選択クエリ
+   * @param expected 文字列
+   */
+  def haveElementWithText(query: String, expectedText: String) = {
+    haveElements(query, 1) and haveText(expectedText) ^^ { element: Element =>
+      element select query get 0
+    }
   }
 
   /**
